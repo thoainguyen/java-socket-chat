@@ -12,9 +12,9 @@ public class ChatServer {
 		server = new ServerSocket(port);
 	}
 
-	public addUser(String userName, String userPass) {
+	public boolean addUser(String userName, String userPass) {
 		User user = new User(userName, userPass);
-		listUsers.add(user);
+		return (listUsers.add(user));
 	}
 	
 
