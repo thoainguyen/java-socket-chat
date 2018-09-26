@@ -12,9 +12,10 @@ import java.util.*;
  */
 public class UserThread extends Thread {
     private Socket socket;
-    private Server server;
+    private ChatServer server;
+	private PrintWriter writer;
 
-    public UserThread(Socket socket, Server server) {
+    public UserThread(Socket socket, ChatServer server) {
         this.socket = socket;
         this.server = server;
     }
