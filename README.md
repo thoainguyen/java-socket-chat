@@ -2,7 +2,7 @@
 ## Assigmment 01: Networking CS Bach Khoa HCM University
 ### Summary: Write a app Chat using java socket API
 ### Implement:
-- Step 1: We create CLI (Command Line Interface) for basic web chat.
+- Step 1: We create CLI (Command Line Interface) for basic app chat.
 - Step 2: We design GUI (Graphical User Interface)for this app.
 ### Step 1: Create CLI for basic web chat:
 #### Processing:
