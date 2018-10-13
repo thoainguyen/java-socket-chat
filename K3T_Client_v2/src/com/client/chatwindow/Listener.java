@@ -53,6 +53,7 @@ public class Listener implements Runnable{
             LoginController.getInstance().showErrorDialog("Could not connect to server");
             logger.error("Could not Connect");
         }
+        logger.info("IP " + hostname + ":" +port);
         logger.info("Connection accepted " + socket.getInetAddress() + ":" + socket.getPort());
 
         try {
@@ -102,6 +103,8 @@ public class Listener implements Runnable{
         createMessage.setStatus(Status.AWAY);
         createMessage.setMsg(msg);
         createMessage.setPicture(picture);
+        createMessage.setIp(ipAddress);
+        createMessage.setPort(portListen);
         oos.writeObject(createMessage);
         oos.flush();
     }
@@ -116,6 +119,8 @@ public class Listener implements Runnable{
         createMessage.setStatus(Status.AWAY);
         createMessage.setVoiceMsg(audio);
         createMessage.setPicture(picture);
+        createMessage.setIp(ipAddress);
+        createMessage.setPort(portListen);
         oos.writeObject(createMessage);
         oos.flush();
     }
@@ -129,6 +134,8 @@ public class Listener implements Runnable{
         createMessage.setType(MessageType.STATUS);
         createMessage.setStatus(status);
         createMessage.setPicture(picture);
+        createMessage.setIp(ipAddress);
+        createMessage.setPort(portListen);
         oos.writeObject(createMessage);
         oos.flush();
     }

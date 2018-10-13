@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-
+import com.client.login.LoginController;
 
 public class ChatController implements Initializable {
 
@@ -271,6 +271,14 @@ public class ChatController implements Initializable {
             }
         });
 
+        
+        
+//        userList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+//        userList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<User>() {
+//            public void changed(ObservableValue<? extends User> observable,User user1,User user2) {
+//              LoginController.showWarning("Toi ten");
+//            }
+//        });
     }
 
     public void setImageLabel(String selectedPicture) {
@@ -298,8 +306,8 @@ public class ChatController implements Initializable {
             }
             Stage stage = MainLauncher.getPrimaryStage();
             Scene scene = new Scene(window);
-            stage.setMaxWidth(350);
-            stage.setMaxHeight(420);
+            stage.setMaxWidth(364);
+            stage.setMaxHeight(550);
             stage.setResizable(false);
             stage.setScene(scene);
             stage.centerOnScreen();

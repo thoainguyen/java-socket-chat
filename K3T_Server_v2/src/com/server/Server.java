@@ -1,6 +1,5 @@
 package com.server;
 
-import com.exception.DuplicateUsernameException;
 import com.messages.Message;
 import com.messages.MessageType;
 import com.messages.Status;
@@ -14,7 +13,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class Server {
 
@@ -67,7 +65,6 @@ public class Server {
                 Message firstMessage = (Message) input.readObject();
                 checkDuplicateUsername(firstMessage);
                 writers.put(firstMessage.getName(),output);
-                sendNotification(firstMessage);
                 addToList();
 
                 while (socket.isConnected()) {
@@ -92,8 +89,6 @@ public class Server {
                 }
             } catch (SocketException socketException) {
                 logger.error("Socket Exception for user " + name);
-            } catch (DuplicateUsernameException duplicateException){
-                logger.error("Duplicate Username : " + name);
             } catch (Exception e){
                 logger.error("Exception in run() method for user: " + name, e);
             } finally {
@@ -113,7 +108,7 @@ public class Server {
             return msg;
         }
 
-        private synchronized void checkDuplicateUsername(Message firstMessage) throws DuplicateUsernameException {
+        private synchronized void checkDuplicateUsername(Message firstMessage) {
             logger.info(firstMessage.getName() + " is trying to connect");
             if (!names.containsKey(firstMessage.getName())) {
                 this.name = firstMessage.getName();
@@ -129,19 +124,9 @@ public class Server {
                 logger.info(name + " has been added to the list");
             } else {
                 logger.error(firstMessage.getName() + " is already connected");
-                throw new DuplicateUsernameException(firstMessage.getName() + " is already connected");
             }
         }
 
-        private Message sendNotification(Message firstMessage) throws IOException {
-            Message msg = new Message();
-            msg.setMsg("has joined the chat.");
-            msg.setType(MessageType.NOTIFICATION);
-            msg.setName(firstMessage.getName());
-            msg.setPicture(firstMessage.getPicture());
-            write(msg);
-            return msg;
-        }
 
 
         private Message removeFromList() throws IOException {
@@ -150,7 +135,7 @@ public class Server {
             msg.setMsg("has left the chat.");
             msg.setType(MessageType.DISCONNECTED);
             msg.setName("SERVER");
-            msg.setUserlist(names);
+            //msg.setUserlist(names);
             write(msg);
             logger.debug("removeFromList() method Exit");
             return msg;
@@ -176,6 +161,8 @@ public class Server {
                 msg.setUserlist(names);
                 msg.setUsers(users);
                 msg.setOnlineCount(names.size());
+                msg.setIp("");
+                msg.setPort("");
                 writer.writeObject(msg);
                 writer.reset();
             }
@@ -196,7 +183,7 @@ public class Server {
                 logger.info("User object: " + user + " has been removed!");
             }
             if (output != null){
-                writers.remove(output);
+                writers.remove(name);
                 logger.info("Writer object: " + user + " has been removed!");
             }
             if (is != null){

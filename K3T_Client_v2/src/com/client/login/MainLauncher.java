@@ -18,8 +18,8 @@ public class MainLauncher extends Application {
         primaryStageObj = primaryStage;
         Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("views/LoginView.fxml"));
         primaryStage.initStyle(StageStyle.UNDECORATED);
-        primaryStage.setTitle("Socket Chat : Client version 0.3");
-        primaryStage.getIcons().add(new Image(getClass().getClassLoader().getResource("images/plug.png").toString()));
+        primaryStage.setTitle("Chat K3T");
+        primaryStage.getIcons().add(new Image(getClass().getClassLoader().getResource("images/icon_chat.png").toString()));
         Scene mainScene = new Scene(root, 364, 550);
         mainScene.setRoot(root);
         primaryStage.setResizable(false);
