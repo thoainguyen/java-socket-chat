@@ -75,17 +75,14 @@ public class Server {
                     if (inputmsg != null) {
                         logger.info(inputmsg.getType() + " - " + inputmsg.getName() + ": " + inputmsg.getMsg());
                         switch (inputmsg.getType()) {
-                            case USER:
-                                write(inputmsg);
-                                break;
-                            case VOICE:
-                                write(inputmsg);
-                                break;
                             case CONNECTED:
                                 addToList();
                                 break;
                             case STATUS:
                                 changeStatus(inputmsg);
+                                break;
+                            case INVITE:
+                                inviteTo(inputmsg);
                                 break;
                         }
                     }
@@ -181,6 +178,14 @@ public class Server {
             }
         }
 
+        private void inviteTo(Message msg) throws IOException{
+            ObjectOutputStream out = writers.get(msg.getMsg());
+            if(out == null) return;
+            String name = msg.getName();
+            msg.setName(msg.getMsg());
+            msg.setMsg(name);
+            out.writeObject(msg);
+        }
         /*
          * Once a user has been disconnected, we close the open connections and remove the writers
          */

@@ -104,12 +104,6 @@ public class Listener implements Runnable {
         return senders.containsKey(userName);
     }
 
-    private void acceptConnection(Message message) throws IOException {
-        Socket sock = new Socket(message.getIp(),Integer.parseInt(message.getPort()));
-        senders.put(message.getName(), new ObjectOutputStream(sock.getOutputStream()));
-        listview.put(message.getName(), new ListView());
-    }
-
     public void handleConnection(Socket socket, ObjectInputStream input) {
         Thread r;
         r = new Thread(new Runnable() {
@@ -146,6 +140,12 @@ public class Listener implements Runnable {
         r.start();
     }
 
+    private void acceptConnection(Message message) throws IOException {
+        Socket sock = new Socket(message.getIp(), Integer.parseInt(message.getPort()));
+        senders.put(message.getName(), new ObjectOutputStream(sock.getOutputStream()));
+        listview.put(message.getName(), new ListView());
+    }
+
     public void createConnect(String name) throws IOException {
 
         /**
@@ -165,6 +165,7 @@ public class Listener implements Runnable {
                             senders.put(name, new ObjectOutputStream(sock.getOutputStream()));
                             listview.put(name, new ListView());
                             handleConnection(sock, obj);
+                            controller.setUserNow(name);
                             break;
                         }
                     }
@@ -182,6 +183,7 @@ public class Listener implements Runnable {
         Message message = new Message();
         message.setName(this.username);
         message.setType(MessageType.INVITE);
+        message.setMsg(name);
         message.setIp(this.ipAddress);
         message.setPort(this.portListen);
         this.oos.writeObject(message);

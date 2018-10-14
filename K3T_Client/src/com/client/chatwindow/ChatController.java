@@ -89,6 +89,15 @@ public class ChatController implements Initializable {
         }
     }
 
+    public void chooseUser(String name) throws IOException{
+        if(listener.isConnected(name)){
+           setUserNow(name); 
+        }
+        else{
+           listener.createConnect(name);
+        }
+    }
+    
     /*public void recordVoiceMessage() throws IOException {
         if (VoiceUtil.isRecording()) {
             Platform.runLater(() -> {
