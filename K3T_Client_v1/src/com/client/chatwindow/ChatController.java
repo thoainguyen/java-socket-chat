@@ -1,9 +1,6 @@
 package com.client.chatwindow;
 
 import com.client.login.MainLauncher;
-import com.client.util.VoicePlayback;
-import com.client.util.VoiceRecorder;
-import com.client.util.VoiceUtil;
 import com.messages.Message;
 import com.messages.MessageType;
 import com.messages.Status;
@@ -30,19 +27,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-
+import javafx.event.ActionEvent;
 
 public class ChatController implements Initializable {
 
@@ -51,15 +44,11 @@ public class ChatController implements Initializable {
     @FXML private Label onlineCountLabel;
     @FXML private ListView userList;
     @FXML private ImageView userImageView;
-    @FXML private Button recordBtn;
     @FXML ListView chatPane;
     @FXML ListView statusList;
     @FXML BorderPane borderPane;
     @FXML ComboBox statusComboBox;
-    @FXML ImageView microphoneImageView;
 
-    Image microphoneActiveImage = new Image(getClass().getClassLoader().getResource("images/microphone-active.png").toString());
-    Image microphoneInactiveImage = new Image(getClass().getClassLoader().getResource("images/microphone.png").toString());
 
     private double xOffset;
     private double yOffset;
@@ -74,22 +63,6 @@ public class ChatController implements Initializable {
         }
     }
 
-    public void recordVoiceMessage() throws IOException {
-        if (VoiceUtil.isRecording()) {
-            Platform.runLater(() -> {
-                microphoneImageView.setImage(microphoneInactiveImage);
-                    }
-            );
-            VoiceUtil.setRecording(false);
-        } else {
-            Platform.runLater(() -> {
-                microphoneImageView.setImage(microphoneActiveImage);
-
-                    }
-            );
-            VoiceRecorder.captureAudio();
-        }
-    }
 
 
     public synchronized void addToChat(Message msg) {
@@ -101,14 +74,8 @@ public class ChatController implements Initializable {
                 profileImage.setFitHeight(32);
                 profileImage.setFitWidth(32);
                 BubbledLabel bl6 = new BubbledLabel();
-                if (msg.getType() == MessageType.VOICE){
-                    ImageView imageview = new ImageView(new Image(getClass().getClassLoader().getResource("images/sound.png").toString()));
-                    bl6.setGraphic(imageview);
-                    bl6.setText("Sent a voice message!");
-                    VoicePlayback.playAudio(msg.getVoiceMsg());
-                }else {
-                    bl6.setText(msg.getName() + ": " + msg.getMsg());
-                }
+
+                bl6.setText(msg.getName() + ": " + msg.getMsg());
                 bl6.setBackground(new Background(new BackgroundFill(Color.WHITE,null, null)));
                 HBox x = new HBox();
                 bl6.setBubbleSpec(BubbleSpec.FACE_LEFT_CENTER);
@@ -132,13 +99,7 @@ public class ChatController implements Initializable {
                 profileImage.setFitWidth(32);
 
                 BubbledLabel bl6 = new BubbledLabel();
-                if (msg.getType() == MessageType.VOICE){
-                    bl6.setGraphic(new ImageView(new Image(getClass().getClassLoader().getResource("images/sound.png").toString())));
-                    bl6.setText("Sent a voice message!");
-                    VoicePlayback.playAudio(msg.getVoiceMsg());
-                }else {
-                    bl6.setText(msg.getMsg());
-                }
+                bl6.setText(msg.getMsg());
                 bl6.setBackground(new Background(new BackgroundFill(Color.LIGHTGREEN,
                         null, null)));
                 HBox x = new HBox();
@@ -270,7 +231,7 @@ public class ChatController implements Initializable {
                 ke.consume();
             }
         });
-
+        
     }
 
     public void setImageLabel(String selectedPicture) {
@@ -298,11 +259,72 @@ public class ChatController implements Initializable {
             }
             Stage stage = MainLauncher.getPrimaryStage();
             Scene scene = new Scene(window);
-            stage.setMaxWidth(350);
-            stage.setMaxHeight(420);
+            stage.setMaxWidth(364);
+            stage.setMaxHeight(550);
             stage.setResizable(false);
             stage.setScene(scene);
             stage.centerOnScreen();
         });
+    }
+    
+
+    
+    @FXML
+    void connectActionButton(ActionEvent event) throws IOException {
+        sendAddFriend();
+    }
+    // event khi kich item user ben trai
+    public void sendAddFriend() throws IOException{
+        String userNeedSendConnect = "Minh Tham";        //Lay user name cua user duoc chon
+        if(!false){//neu chua co ket noi tu truoc
+                    //mo accept
+            Listener.sendConnectFriend(userNeedSendConnect);        //gui message toi server
+        }
+        else{
+                    //show pane cua user name do
+        }
+    }
+    
+    //Ham xu ly khi co yeu cau ket noi cua user A den
+    public void acceptRequestConnect(Message message, String userName) throws IOException{
+        String userSendConnect = message.getMsg();
+        String ipAddress = message.getIp();
+        String port = message.getPort();
+        logger.info("User name: "+userSendConnect+" IP: "+ipAddress+" Port: "+port);
+        showInfo("Notice to "+userName,"User: "+userSendConnect +" want to connect to you !");
+                //Tao socket
+        if (true){        //Kiem tra socket da ket noi den server user A chua
+            //Neu co thi phan hoi den user A la da ket noi thanh cong thong qua server center
+            Listener.sendStatusConnect(userSendConnect,"true");
+        }
+        else{
+            Listener.sendStatusConnect(userSendConnect,"false");
+            showInfo(userName,"Connect to user: "+userSendConnect+" fail !!!");
+
+        }
+    }
+
+    //Ham xu ly khi co yeu cau ket noi cua user A den
+    public void notice(Message message, String userName) {
+        String userSendConnect = message.getMsg();
+        String statusConnect = message.getIp();
+        logger.info("User name: "+userSendConnect+" Status Connect: "+statusConnect);
+        if ("true".equals(statusConnect)){
+            showInfo("Notice to "+userName,"Connect to "+userSendConnect +" SUCCESS !");
+                    //Show pane
+        }
+        else{
+            showInfo("Notice to "+userName,"Connect to "+userSendConnect +" FAIL !");
+        }
+
+    }    
+    public static void showInfo(String message1,String message2) {
+    Platform.runLater(()-> {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(message1);
+        alert.setHeaderText(null);
+        alert.setContentText(message2);
+        alert.showAndWait();
+    });
     }
 }

@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.Socket;
 
-import static com.messages.MessageType.CONNECTED;
+
 
 public class Listener implements Runnable{
 
@@ -53,6 +53,7 @@ public class Listener implements Runnable{
             LoginController.getInstance().showErrorDialog("Could not connect to server");
             logger.error("Could not Connect");
         }
+        logger.info("IP " + hostname + ":" +port);
         logger.info("Connection accepted " + socket.getInetAddress() + ":" + socket.getPort());
 
         try {
@@ -68,9 +69,6 @@ public class Listener implements Runnable{
                         case USER:
                             controller.addToChat(message);
                             break;
-                        case VOICE:
-                            controller.addToChat(message);
-                            break;
                         case SERVER:
                             controller.addAsServer(message);
                             break;
@@ -83,6 +81,11 @@ public class Listener implements Runnable{
                         case STATUS:
                             controller.setUserList(message);
                             break;
+                        case CONNECT_FRIEND:
+                            controller.acceptRequestConnect(message, username);
+                            break;
+                        case STATUS_CONNECT:
+                            controller.notice(message,username);
                     }
                 }
             }
@@ -102,23 +105,13 @@ public class Listener implements Runnable{
         createMessage.setStatus(Status.AWAY);
         createMessage.setMsg(msg);
         createMessage.setPicture(picture);
+        createMessage.setIp(ipAddress);
+        createMessage.setPort(portListen);
         oos.writeObject(createMessage);
         oos.flush();
     }
 
-    /* This method is used for sending a voice Message
- * @param msg - The message which the user generates
- */
-    public static void sendVoiceMessage(byte[] audio) throws IOException {
-        Message createMessage = new Message();
-        createMessage.setName(username);
-        createMessage.setType(MessageType.VOICE);
-        createMessage.setStatus(Status.AWAY);
-        createMessage.setVoiceMsg(audio);
-        createMessage.setPicture(picture);
-        oos.writeObject(createMessage);
-        oos.flush();
-    }
+
 
     /* This method is used for sending a normal Message
  * @param msg - The message which the user generates
@@ -129,15 +122,17 @@ public class Listener implements Runnable{
         createMessage.setType(MessageType.STATUS);
         createMessage.setStatus(status);
         createMessage.setPicture(picture);
+        createMessage.setIp(ipAddress);
+        createMessage.setPort(portListen);
         oos.writeObject(createMessage);
         oos.flush();
     }
 
-    /* This method is used to send a connecting message */
+    /* Message first*/
     public static void connect() throws IOException {
         Message createMessage = new Message();
         createMessage.setName(username);
-        createMessage.setType(CONNECTED);
+        createMessage.setType(MessageType.CONNECTED);
         createMessage.setMsg(HASCONNECTED);
         createMessage.setPicture(picture);
         createMessage.setIp(ipAddress);
@@ -145,4 +140,26 @@ public class Listener implements Runnable{
         oos.writeObject(createMessage);
     }
 
+    // Send connect request
+    public static void sendConnectFriend(String userNameFriend) throws IOException {
+        Message createMessage = new Message();
+        createMessage.setName(username);
+        createMessage.setType(MessageType.CONNECT_FRIEND);
+        createMessage.setMsg(userNameFriend);//user name muon ket noi
+        createMessage.setPicture(picture);
+        createMessage.setIp(ipAddress);
+        createMessage.setPort(portListen);
+        oos.writeObject(createMessage);
+    }
+    
+    public static void sendStatusConnect(String userSendConnect, String statusConnect) throws IOException {
+        Message createMessage = new Message();
+        createMessage.setName(username);
+        createMessage.setType(MessageType.STATUS_CONNECT);
+        createMessage.setMsg(userSendConnect);//thong bao den user A trang thai ket noi
+        createMessage.setIp(statusConnect);// Trang thai ket noi la true hay false        
+        createMessage.setPicture(picture);
+        createMessage.setPort(portListen);
+        oos.writeObject(createMessage);
+    }
 }

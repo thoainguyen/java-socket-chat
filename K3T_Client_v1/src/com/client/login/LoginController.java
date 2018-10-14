@@ -2,7 +2,6 @@ package com.client.login;
 
 import com.client.chatwindow.ChatController;
 import com.client.chatwindow.Listener;
-import com.client.util.ResizeHelper;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -31,9 +30,7 @@ import java.net.URL;
 import java.util.Random;
 import java.util.ResourceBundle;
 
-/**
- *  Created by Dominic on 12-Nov-15.
- */
+
 public class LoginController implements Initializable {
     @FXML private ImageView Defaultview;
     @FXML private ImageView Sarahview;
@@ -94,7 +91,6 @@ public class LoginController implements Initializable {
             stage.setScene(this.scene);
             stage.setMinWidth(800);
             stage.setMinHeight(300);
-            ResizeHelper.addResizeListener(stage);
             stage.centerOnScreen();
             con.setUsernameLabel(usernameTextfield.getText());
             con.setImageLabel(selectedPicture.getText());
