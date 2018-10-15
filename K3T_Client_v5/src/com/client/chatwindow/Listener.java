@@ -185,7 +185,6 @@ public class Listener implements Runnable{
                             senders.put(name, new ObjectOutputStream(sock.getOutputStream()));
                             listview.put(name, new ArrayList<Message>());
                             handleConnection(sock, obj);
-                            controller.setUserNow(name);
                             break;
                         }
                     }
@@ -215,9 +214,10 @@ public class Listener implements Runnable{
         createMessage.setMsg(msg);
         createMessage.setPicture(this.picture);
         
-        ArrayList<Message> lst = listview.get(name);
-        lst.add(createMessage);
-        controller.updateMgs(createMessage);  
+        listview.get(name).add(createMessage);
+        
+        if(name.equals(controller.userNow))
+            controller.addToChat(createMessage);  
         
         ObjectOutputStream ossTo = senders.get(name);
         try {
@@ -240,12 +240,12 @@ public class Listener implements Runnable{
 
                         if (message != null) {
                             logger.info("Message recieved: " + message.getMsg() + " MessageType: " + message.getType() + " Name: " + message.getName());
-                            ArrayList<Message> lst = listview.get(message.getName());
-                            lst.add(message);
                             switch (message.getType()) {
                                 case USER :
                                     //message.setName(username);
-                                    controller.updateMgs(message);
+                                    listview.get(message.getName()).add(message);
+                                    if(message.getName().equals(controller.userNow))
+                                        controller.addToChat(message);
                                     break;
                             }
                         }

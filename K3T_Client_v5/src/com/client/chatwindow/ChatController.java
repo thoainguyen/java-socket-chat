@@ -67,14 +67,15 @@ public class ChatController implements Initializable {
     private Listener listener;
     String userNow;
     public CellRenderer cellRender;
+
     public void setListener(Listener ls) {
         this.listener = ls;
     }
 
-    public Listener getListener(){
+    public Listener getListener() {
         return this.listener;
     }
-    
+
     public void setUsernameLabel(String username) {
         this.usernameLabel.setText(username);
     }
@@ -203,12 +204,6 @@ public class ChatController implements Initializable {
         }        //show pane cua user name do    
     }
 
-    public void connectTo(String userNeedSendConnect) throws IOException{
-        if (!listener.isConnected(userNeedSendConnect)) {//neu chua co ket noi tu truoc
-            listener.createConnect(userNeedSendConnect);        //gui message toi server
-        }     //show pane cua user name do
-    }
-    
     //Ham xu ly khi co yeu cau ket noi cua user A den
     //Ham xu ly khi co yeu cau ket noi cua user A den
 //    public void notice(Message message, String userName) {
@@ -235,26 +230,30 @@ public class ChatController implements Initializable {
     }
 
     public void setUserNow(String userN) throws IOException {
-        connectTo(userN);
-        this.userNow = userN;
-        chatPane.getItems().clear();
-        ArrayList<Message> list = listener.listview.get(userNow);
-        if(list == null) return;
-        for(Message mgs : list){
-            updateMgs(mgs);
-        }  
+
+        if (!listener.isConnected(userN)) {//neu chua co ket noi tu truoc
+            listener.createConnect(userN);        //gui message toi server
+        }
+        if (!userN.equals(this.userNow)) {
+            this.userNow = userN;
+
+            chatPane.getItems().clear();
+            ArrayList<Message> list = listener.listview.get(userNow);
+            if (list == null) {
+                return;
+            }
+            for (Message mgs : list) {
+                addToChat(mgs);
+            }
+        }
+
     }
 
-    public synchronized void updateMgs(Message mgs){
-        if(mgs.getName().equals(usernameLabel.getText())){
-            addToMyChat(mgs);
-        }
-        else{
-            addToOtherChat(mgs);
-        }
+    public synchronized void updateMgs(Message mgs) {
+        this.addToChat(mgs);
         this.cellRender.setTxt(mgs.getName(), mgs.getMsg());
     }
-    
+
     public void sendButtonAction() throws IOException {
         String msg = messageBox.getText();
         if (!messageBox.getText().isEmpty()) {
@@ -263,7 +262,34 @@ public class ChatController implements Initializable {
         }
     }
 
-    public synchronized void addToMyChat(Message msg) {
+    public synchronized void addToChat(Message msg) {
+        Task<HBox> othersMessages = new Task<HBox>() {
+            @Override
+            public HBox call() throws Exception {
+                //Image image = new Image(getClass().getClassLoader().getResource("images/" + msg.getPicture() + ".png").toString());
+                // Cai tren co loi
+                Image image = userImageView.getImage();
+                ImageView profileImage = new ImageView(image);
+                profileImage.setFitHeight(32);
+                profileImage.setFitWidth(32);
+
+                BubbledLabel bl6 = new BubbledLabel();
+
+                bl6.setText(msg.getName() + " : " + msg.getMsg());
+
+                bl6.setBackground(new Background(new BackgroundFill(Color.PINK, null, null)));
+                HBox x = new HBox();
+                x.setMaxWidth(chatPane.getWidth() - 20);
+                x.setAlignment(Pos.TOP_LEFT);
+                bl6.setBubbleSpec(BubbleSpec.FACE_LEFT_CENTER);
+                x.getChildren().addAll(profileImage, bl6);
+
+                setOnlineLabel(Integer.toString(msg.getOnlineCount()));
+                return x;
+            }
+        };
+        othersMessages.setOnSucceeded(event -> chatPane.getItems().add(othersMessages.getValue()));
+
         Task<HBox> yourMessages = new Task<HBox>() {
             @Override
             public HBox call() throws Exception {
@@ -273,9 +299,9 @@ public class ChatController implements Initializable {
                 profileImage.setFitWidth(32);
 
                 BubbledLabel bl6 = new BubbledLabel();
-               
+
                 bl6.setText(msg.getMsg());
-                
+
                 bl6.setBackground(new Background(new BackgroundFill(Color.LIGHTGREEN,
                         null, null)));
                 HBox x = new HBox();
@@ -290,44 +316,16 @@ public class ChatController implements Initializable {
         };
         yourMessages.setOnSucceeded(event -> chatPane.getItems().add(yourMessages.getValue()));
 
-        Thread t2 = new Thread(yourMessages);
-        t2.setDaemon(true);
-        t2.start();
-
+        if (msg.getName().equals(this.usernameLabel.getText())) {
+            /*Thread t1 = new Thread(yourMessages);
+            t1.setDaemon(true);
+            t1.start();*/
+            yourMessages.run();
+        } else {
+            /*Thread t2 = new Thread(othersMessages);
+            t2.setDaemon(true);
+            t2.start();*/
+            othersMessages.run();
+        }
     }
-
-    public synchronized void addToOtherChat(Message msg) {
-        Task<HBox> othersMessages = new Task<HBox>() {
-            @Override
-            public HBox call() throws Exception {
-                //Image image = new Image(getClass().getClassLoader().getResource("images/" + msg.getPicture() + ".png").toString());
-                // Cai tren co loi
-                Image image = userImageView.getImage();
-                ImageView profileImage = new ImageView(image);
-                profileImage.setFitHeight(32);
-                profileImage.setFitWidth(32);
-
-                BubbledLabel bl6 = new BubbledLabel();
-               
-                bl6.setText(msg.getName()+" : "+msg.getMsg());
-                
-                bl6.setBackground(new Background(new BackgroundFill(Color.PINK,null, null)));
-                HBox x = new HBox();
-                x.setMaxWidth(chatPane.getWidth() - 20);
-                x.setAlignment(Pos.TOP_LEFT);
-                bl6.setBubbleSpec(BubbleSpec.FACE_LEFT_CENTER);
-                x.getChildren().addAll(profileImage,bl6);
-
-                setOnlineLabel(Integer.toString(msg.getOnlineCount()));
-                return x;
-            }
-        };
-
-        othersMessages.setOnSucceeded(event -> chatPane.getItems().add(othersMessages.getValue()));
-
-        Thread t = new Thread(othersMessages);
-        t.setDaemon(true);
-        t.start();
-    }
-
 }
